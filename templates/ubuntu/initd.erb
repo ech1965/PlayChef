@@ -10,10 +10,10 @@
 ### END INIT INFO
 
 # User running the Play process
-USER=root
+USER=<%= @install_user %>
 
 # Name of the application
-APPLICATION_NAME="<%= @name %>"
+APPLICATION_NAME="<%= @application_name %>"
 # Path to the application source
 APPLICATION_PATH="<%= @path %>"
 PID_FILE="<%=@pidFilePath%>"
