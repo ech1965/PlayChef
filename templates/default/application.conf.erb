@@ -1,5 +1,28 @@
 #Application Configuration File
 
-application.secret="<%=@applicationSecretKey%>"
 
 application.langs="<%=@applicationLanguage%>"
+
+
+# Secret key
+# ~~~~~
+# The secret key is used to secure cryptographics functions.
+# If you deploy your application to several instances be sure to use the same key!
+application.secret="<%=@applicationSecretKey%>"
+
+# Database configuration
+# ~~~~~
+db.default.driver=com.mysql.jdbc.Driver
+db.default.url="mysql://<%=@database_user%>:<%=@database_password%>@<%=@database_host%>/<%=@database_name%>"
+
+# Cloudify
+# ~~~~~
+#
+# Cloudify Path
+cloudify.path = "/opt/cloudify"
+#
+# Cloudify Temp
+cloudify.temp = "/tmp"
+#
+# Safe Files
+cloudify.safe = true

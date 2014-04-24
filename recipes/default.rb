@@ -25,6 +25,9 @@ install_user          = "#{node[:play_app][:installation_user]}"
 application_name      = "#{node[:play_app][:application_name]}"
 dist_url              = "#{node[:play_app][:dist_url]}"
 
+database_host         =  node[:play_app][:database_host]
+database_password     =  node[:play_app][:database_password]
+
 def uid_of_user(username)
   node['etc']['passwd'].each do |user, data|
     if user = username
@@ -55,6 +58,18 @@ if node.attribute?('pid_file_path')
   pid_file_path      = "#{node[:play_app][:pid_file_path]}"
 else
   pid_file_path      = "/run/user/#{install_user_uid}/#{application_name}.pid"
+end
+
+if node.attribute?('database_name')
+  database_name      = "#{node[:play_app][:database_name]}"
+else
+  database_name      = "#{application_name}.pid"
+end
+
+if node.attribute?('database_user')
+  database_user      = "#{node[:play_app][:database_user]}"
+else
+  database_user      = "#{install_user}.pid"
 end
 
 
@@ -109,11 +124,15 @@ end
 #Add/remove variables here and in the application.conf.erb file as per your requirements e.g Database settings 
 
 template "#{config_dir}/application.conf" do
-  source "application.conf.erb"
+  source "application.conf.erbc"
   owner install_user
   group install_user
   variables({
                 :applicationSecretKey => "#{node[:play_app][:application_secret_key]}",
+                :database_host => database_host,
+                :database_user => database_user,
+                :database_password => database_password,
+                :database_name => database_name,
                 :applicationLanguage => "#{node[:play_app][:language]}"
             })
 end
@@ -125,6 +144,7 @@ template "#{config_dir}/logger.xml" do
   owner install_user
   group install_user
   variables({
+
                 :configDir => "#{config_dir}",
                 :application_name => "#{application_name}",
                 :maxHistory => "#{node[:play_app][:max_logging_history]}",
@@ -142,10 +162,10 @@ template "/etc/init.d/#{application_name}" do
   mode "0744"
   variables({
                 :run_as =>  "#{install_user}",
-                :name => "#{application_name}",
+                :application_name => "#{application_name}",
                 :path => "#{installation_dir}/#{application_name}",
-                :pidFilePath => "#{node[:play_app][:pid_file_path]}",
-                :options => "-Dconfig.file=#{config_dir}/application.conf -Dpidfile.path=#{node[:play_app][:pid_file_path]} -Dlogger.file=#{config_dir}/logger.xml #{node[:play_app][:vm_options]}",
+                :pid_file_path => "#{pid_file_path}",
+                :options => "-Dconfig.file=#{config_dir}/application.conf -Dpidfile.path=#{pid_file_path} -Dlogger.file=#{config_dir}/logger.xml #{node[:play_app][:vm_options]}",
                 :command => "start"
             })
 end
